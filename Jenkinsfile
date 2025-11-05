@@ -8,7 +8,7 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        git branch: 'main', url: 'https://github.com/Ftorres91/hola_mundo.php'
+        git branch: 'main', url: 'https://github.com/Ftorres91/hola_mundo'
       }
     }
     stage('Build') {
