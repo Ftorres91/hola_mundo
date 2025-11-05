@@ -1,14 +1,14 @@
 pipeline {
   agent any
   environment {
-    IMAGE="php-holamundo:${env.BUILD_NUMBER}"
+    IMAGE="php-hola_mundo:${env.BUILD_NUMBER}"
     CONTAINER="php-hm-${env.BUILD_NUMBER}"
     PORT="8090"
   }
   stages {
     stage('Checkout') {
       steps {
-        git branch: 'main', url: 'https://github.com/mslanger/php'
+        git branch: 'main', url: 'https://github.com/Ftorres91/php'
       }
     }
     stage('Build') {
