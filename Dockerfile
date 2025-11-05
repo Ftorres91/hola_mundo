@@ -2,7 +2,7 @@
 FROM php:8.2-apache
 
 # Copiamos el código fuente al directorio raíz de Apache
-COPY . /var/www/html/
+COPY . /var/www/html/index.php
 
 # Exponemos el puerto 80
 EXPOSE 80
