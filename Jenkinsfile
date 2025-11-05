@@ -1,9 +1,9 @@
 pipeline {
   agent any
   environment {
-    IMAGE="php-hola_mundo:${env.BUILD_NUMBER}"
+    IMAGE="php-holamundo:${env.BUILD_NUMBER}"
     CONTAINER="php-hm-${env.BUILD_NUMBER}"
-    PORT="8090"
+    PORT="8080"
   }
   stages {
     stage('Checkout') {
