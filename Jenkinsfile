@@ -17,12 +17,11 @@ pipeline {
 
   stages {
 
-     stages {
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/Ftorres91/hola.git'
-            }
-        }
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
 
     stage('Docker Build') {
       steps {
