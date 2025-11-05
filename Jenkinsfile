@@ -26,10 +26,10 @@ pipeline {
       steps {
         sh '''
           i=0
-          until curl -fsS "http://localhost:${PORT}/hola_mundo.php" >/dev/null; do
+          until curl -fsS "http://localhost:${PORT}/index.php" >/dev/null; do
             i=$((i+1)); [ "$i" -ge 20 ] && exit 1; sleep 1
           done
-          curl -fsS "http://localhost:${PORT}/hola_mundo.php" | grep -i "hola"
+          curl -fsS "http://localhost:${PORT}/index.php" | grep -i "hola"
         '''
       }
     }
