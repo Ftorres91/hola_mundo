@@ -1,7 +1,7 @@
 pipeline {
   agent any
   environment {
-    IMAGE="php-holamundo:${env.BUILD_NUMBER}"
+    IMAGE="php-index:${env.BUILD_NUMBER}"
     CONTAINER="php-hm-${env.BUILD_NUMBER}"
     PORT="8080"
   }
