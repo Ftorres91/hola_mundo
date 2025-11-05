@@ -1,14 +1,15 @@
 pipeline {
   agent any
 
-  environment {
-    IMAGE_NAME = "php-holamundo"
+environment {
+    IMAGE_NAME = "Ftorres91/hola"   // usa tu usuario real de Docker Hub
     IMAGE_TAG  = "${env.BUILD_NUMBER}"
-    REGISTRY   = "https://index.docker.io/v1/"    // Docker Hub
-    REGISTRY_CREDS = "dockerhub-creds-id"         // ID de credencial en Jenkins
+    REGISTRY   = "https://index.docker.io/v1/"
+    REGISTRY_CREDS = "dockerhub-creds-id"             // ID de credenciales en Jenkins
     CONTAINER_NAME = "php-hm-${env.BUILD_NUMBER}"
     TEST_PORT = "8080"
-  }
+}
+
 
   options {
     timestamps()
