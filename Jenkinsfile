@@ -4,27 +4,25 @@ pipeline {
     stages {
         stage('Clonar código desde GitHub') {
             steps {
-                git branch: 'main', url: 'https://github.com/Ftorres91/hola_mundo.git'
+                git 'https://github.com/Ftorres91/hola_mundo.git'
             }
         }
 
         stage('Construir imagen Docker') {
             steps {
                 script {
-                    dockerImage = docker.build('miapp-php:latest')
+                    dockerImage = docker.build("hola-mundo-php")
                 }
             }
         }
 
-        stage('Ejecutar contenedor') {
+        stage('Reiniciar contenedor') {
             steps {
                 script {
-                    // Detener contenedor previo si existe
-                    sh 'docker stop miapp-php || true'
-                    sh 'docker rm miapp-php || true'
-                    
-                    // Iniciar contenedor nuevo
-                    sh 'docker run -d -p 8081:80 --name miapp-php miapp-php:latest'
+                    // Detener contenedor previo (si existe)
+                    sh 'docker rm -f hola_mundo || true'
+                    // Ejecutar nuevo contenedor
+                    dockerImage.run("-d -p 8081:80 --name hola_mundo")
                 }
             }
         }
@@ -32,11 +30,11 @@ pipeline {
 
     post {
         success {
-            echo '✅ Aplicación PHP desplegada correctamente.'
-            echo '🌐 Accede en: http://localhost:8081'
+            echo "✅ Desplegado correctamente en http://localhost:8081"
         }
         failure {
-            echo '❌ Error en la ejecución del pipeline.'
+            echo "❌ Error en la ejecución del pipeline."
         }
     }
 }
+
