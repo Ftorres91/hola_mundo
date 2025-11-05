@@ -1,38 +1,57 @@
 pipeline {
-  agent any
-  environment {
-    IMAGE="php-index:${env.BUILD_NUMBER}"
-    CONTAINER="php-hm-${env.BUILD_NUMBER}"
-    PORT="8085"
-  }
-  stages {
-    stage('Checkout') {
-      steps {
-        git branch: 'main', url: 'https://github.com/Ftorres91/hola_mundo'
-      }
+    agent any
+    environment {
+        IMAGE = "php-index:${env.BUILD_NUMBER}"
+        CONTAINER = "php-hm-${env.BUILD_NUMBER}"
+        PORT = "8085"
     }
-    stage('Build') {
-      steps { sh 'docker build -t "$IMAGE" .' }
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Ftorres91/hola_mundo'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'docker build -t "$IMAGE" .'
+            }
+        }
+
+        stage('Run') {
+            steps {
+                sh '''
+                    # Borrar contenedor anterior si existe
+                    docker rm -f "$CONTAINER" 2>/dev/null || true
+
+                    # Ejecutar contenedor en background
+                    docker run -d --name "$CONTAINER" -p ${PORT}:80 "$IMAGE"
+                '''
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh '''
+                    # Esperar hasta que el contenedor responda
+                    i=0
+                    until docker exec "$CONTAINER" curl -fsS http://localhost/index.php >/dev/null; do
+                        i=$((i+1))
+                        [ "$i" -ge 20 ] && exit 1
+                        sleep 1
+                    done
+
+                    # Verificar que la salida contenga "Hola"
+                    docker exec "$CONTAINER" curl -fsS http://localhost/index.php | grep -i "hola"
+                '''
+            }
+        }
     }
-    stage('Run') {
-      steps {
-        sh '''
-          docker rm -f "$CONTAINER" 2>/dev/null || true
-          docker run -d --name "$CONTAINER" -p ${PORT}:80 "$IMAGE"
-        '''
-      }
+
+    post {
+        always {
+            sh 'docker rm -f "$CONTAINER" 2>/dev/null || true'
+        }
     }
-    stage('Test') {
-      steps {
-        sh '''
-          i=0
-          until curl -fsS "http://localhost:${PORT}/index.php" >/dev/null; do
-            i=$((i+1)); [ "$i" -ge 20 ] && exit 1; sleep 1
-          done
-          curl -fsS "http://localhost:${PORT}/index.php" | grep -i "hola"
-        '''
-      }
-    }
-  }
-  post { always { sh 'docker rm -f "$CONTAINER" 2>/dev/null || true' } }
 }
+
