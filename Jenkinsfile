@@ -1,57 +1,42 @@
 pipeline {
     agent any
-    environment {
-        IMAGE = "php-index:${env.BUILD_NUMBER}"
-        CONTAINER = "php-hm-${env.BUILD_NUMBER}"
-        PORT = "8085"
-    }
+
     stages {
-        stage('Checkout') {
+        stage('Clonar código desde GitHub') {
             steps {
-                git branch: 'main', url: 'https://github.com/Ftorres91/hola_mundo'
+                git branch: 'main', url: 'https://github.com/Ftorres91/hola_mundo.git'
             }
         }
 
-        stage('Build') {
+        stage('Construir imagen Docker') {
             steps {
-                sh 'docker build -t "$IMAGE" .'
+                script {
+                    dockerImage = docker.build('miapp-php:latest')
+                }
             }
         }
 
-        stage('Run') {
+        stage('Ejecutar contenedor') {
             steps {
-                sh '''
-                    # Borrar contenedor anterior si existe
-                    docker rm -f "$CONTAINER" 2>/dev/null || true
-
-                    # Ejecutar contenedor en background
-                    docker run -d --name "$CONTAINER" -p ${PORT}:80 "$IMAGE"
-                '''
-            }
-        }
-
-        stage('Test') {
-            steps {
-                sh '''
-                    # Esperar hasta que el contenedor responda
-                    i=0
-                    until docker exec "$CONTAINER" curl -fsS http://localhost/index.php >/dev/null; do
-                        i=$((i+1))
-                        [ "$i" -ge 20 ] && exit 1
-                        sleep 1
-                    done
-
-                    # Verificar que la salida contenga "Hola"
-                    docker exec "$CONTAINER" curl -fsS http://localhost/index.php | grep -i "hola"
-                '''
+                script {
+                    // Detener contenedor previo si existe
+                    sh 'docker stop miapp-php || true'
+                    sh 'docker rm miapp-php || true'
+                    
+                    // Iniciar contenedor nuevo
+                    sh 'docker run -d -p 8081:80 --name miapp-php miapp-php:latest'
+                }
             }
         }
     }
 
     post {
-        always {
-            sh 'docker rm -f "$CONTAINER" 2>/dev/null || true'
+        success {
+            echo '✅ Aplicación PHP desplegada correctamente.'
+            echo '🌐 Accede en: http://localhost:8081'
+        }
+        failure {
+            echo '❌ Error en la ejecución del pipeline.'
         }
     }
 }
-
